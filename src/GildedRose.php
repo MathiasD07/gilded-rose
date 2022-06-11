@@ -2,72 +2,26 @@
 
 namespace App;
 
+use App\Item\AgedBrie;
+use App\Item\BackstagePass;
+use App\Item\Conjured;
+use App\Item\DefaultItem;
+use App\Item\Normal;
+
 class GildedRose
 {
-    public $name;
+    private const ITEMS = [
+        'Aged Brie' => AgedBrie::class,
+        'Backstage passes to a TAFKAL80ETC concert' => BackstagePass::class,
+        'Conjured Mana Cake' => Conjured::class,
+        'normal' => Normal::class,
+        'default' => DefaultItem::class,
+    ];
 
-    public $quality;
-
-    public $sellIn;
-
-    public function __construct($name, $quality, $sellIn)
+    public static function of(string $item, int $quality, int $sellIn)
     {
-        $this->name = $name;
-        $this->quality = $quality;
-        $this->sellIn = $sellIn;
-    }
+        $item = self::ITEMS[$item] ?? self::ITEMS['default'];
 
-    public static function of($name, $quality, $sellIn) {
-        return new static($name, $quality, $sellIn);
-    }
-
-    public function tick()
-    {
-        if ($this->name != 'Aged Brie' and $this->name != 'Backstage passes to a TAFKAL80ETC concert') {
-            if ($this->quality > 0) {
-                if ($this->name != 'Sulfuras, Hand of Ragnaros') {
-                    $this->quality = $this->quality - 1;
-                }
-            }
-        } else {
-            if ($this->quality < 50) {
-                $this->quality = $this->quality + 1;
-
-                if ($this->name == 'Backstage passes to a TAFKAL80ETC concert') {
-                    if ($this->sellIn < 11) {
-                        if ($this->quality < 50) {
-                            $this->quality = $this->quality + 1;
-                        }
-                    }
-                    if ($this->sellIn < 6) {
-                        if ($this->quality < 50) {
-                            $this->quality = $this->quality + 1;
-                        }
-                    }
-                }
-            }
-        }
-
-        if ($this->name != 'Sulfuras, Hand of Ragnaros') {
-            $this->sellIn = $this->sellIn - 1;
-        }
-
-        if ($this->sellIn < 0) {
-            if ($this->name != 'Aged Brie') {
-                if ($this->name != 'Backstage passes to a TAFKAL80ETC concert') {
-                    if ($this->quality > 0) {
-                        if ($this->name != 'Sulfuras, Hand of Ragnaros') {
-                            $this->quality = $this->quality - 1;
-                        }
-                    }
-                } else {
-                    $this->quality = $this->quality - $this->quality;
-                }
-            } else {
-                if ($this->quality < 50) {
-                    $this->quality = $this->quality + 1;
-                }
-            }
-        }
+        return new $item($quality, $sellIn);
     }
 }
